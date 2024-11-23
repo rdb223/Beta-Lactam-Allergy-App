@@ -70,6 +70,4 @@ def update_output(drug1, drug2):
 if __name__ == '__main__':
     app.run_server(debug=True, port=8050)
 
-!pip install dash
-!pip install pandas
 
