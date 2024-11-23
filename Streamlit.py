@@ -44,7 +44,7 @@ if drug1 and drug2:
     else:
         label = filtered_data['Cross_Reactivity_Label'].values[0]
         if label == 0:
-            st.success('No cross-reactivity expected.')
+            st.success('<2% cross-reactivity expected.')
         elif label == 1:
             st.markdown('<div style="background-color:#ffdddd; padding:10px; border-radius:5px;"><strong style="color:red;">⚠️ 20-40% chance of cross-reactivity. Consider another agent or utilizing a test dose.</strong></div>', unsafe_allow_html=True)
         elif label == 2:
