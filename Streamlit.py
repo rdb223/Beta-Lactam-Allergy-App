@@ -46,8 +46,7 @@ if drug1 and drug2:
         if label == 0:
             st.success('No cross-reactivity expected.')
         elif label == 1:
-            st.warning('Probable cross-reactivity.', icon='⚠️')
-            st.markdown('<span style="color:red">Probable cross-reactivity.</span>', unsafe_allow_html=True)
+            st.markdown('<div style="background-color:#ffdddd; padding:10px; border-radius:5px;"><strong style="color:red;">⚠️ Probable cross-reactivity.</strong></div>', unsafe_allow_html=True)
         elif label == 2:
             st.info('Possible cross-reactivity.')
         else:
