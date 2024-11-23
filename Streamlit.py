@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
 # Refactored beta-lactam-allergy-app for Streamlit
+import os
+
+# Ensure openpyxl is installed
+try:
+    import openpyxl
+except ImportError:
+    os.system('pip install openpyxl')
 
 import streamlit as st
 import pandas as pd
