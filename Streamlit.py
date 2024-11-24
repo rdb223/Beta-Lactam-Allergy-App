@@ -50,14 +50,15 @@ if drug1 and drug2:
             # Provide alternatives with a cross-reactivity rating of 0 or 2
             alternative_data = cross_reactivity_data[(cross_reactivity_data['Drug1'] == drug1) & (cross_reactivity_data['Cross_Reactivity_Label'] != 1)]
             if not alternative_data.empty:
-                st.write('Consider the following alternatives:')
-                for _, row in alternative_data.iterrows():
-                    drug2_alternative = row['Drug2']
-                    alt_label = row['Cross_Reactivity_Label']
-                    if alt_label == 0:
-                        st.write(f'- **{drug2_alternative}**: No cross-reactivity expected')
-                    elif alt_label == 2:
-                        st.write(f'- **{drug2_alternative}**: Possible cross-reactivity')
+                st.write('---')
+                if (alternative_data['Cross_Reactivity_Label'] == 0).any():
+                    st.markdown('### <2% Cross-Reactivity Expected:')
+                    for _, row in alternative_data[alternative_data['Cross_Reactivity_Label'] == 0].iterrows():
+                        st.write(f'- **{row["Drug2"]}**')
+                if (alternative_data['Cross_Reactivity_Label'] == 2).any():
+                    st.markdown('### Possible Cross-Reactivity:')
+                    for _, row in alternative_data[alternative_data['Cross_Reactivity_Label'] == 2].iterrows():
+                        st.write(f'- **{row["Drug2"]}**')
         elif label == 2:
             st.info('Possible cross-reactivity')
         else:
