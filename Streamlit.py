@@ -44,11 +44,22 @@ if drug1 and drug2:
     else:
         label = filtered_data['Cross_Reactivity_Label'].values[0]
         if label == 0:
-            st.success('<2% cross-reactivity expected.')
+            st.success('<2% chance of cross-reactivity expected')
         elif label == 1:
             st.markdown('<div style="background-color:#ffdddd; padding:10px; border-radius:5px;"><strong style="color:red;">⚠️ 20-40% chance of cross-reactivity. Consider another agent or utilizing a test dose.</strong></div>', unsafe_allow_html=True)
+            # Provide alternatives with a cross-reactivity rating of 0 or 2
+            alternative_data = cross_reactivity_data[(cross_reactivity_data['Drug1'] == drug1) & (cross_reactivity_data['Cross_Reactivity_Label'] != 1)]
+            if not alternative_data.empty:
+                st.write('Consider the following alternatives:')
+                for _, row in alternative_data.iterrows():
+                    drug2_alternative = row['Drug2']
+                    alt_label = row['Cross_Reactivity_Label']
+                    if alt_label == 0:
+                        st.write(f'- **{drug2_alternative}**: No cross-reactivity expected')
+                    elif alt_label == 2:
+                        st.write(f'- **{drug2_alternative}**: Possible cross-reactivity')
         elif label == 2:
-            st.info('Possible cross-reactivity.')
+            st.info('Possible cross-reactivity')
         else:
             st.error('Unknown cross-reactivity label.')
 else:
