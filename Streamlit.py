@@ -21,13 +21,13 @@ st.title('Antibiotic Cross-Reactivity Checker')
 
 # Select Drug 1
 drug1 = st.selectbox(
-    'Select Drug 1:',
+    'Antimicrobial patient reports allergy to:',
     options=cross_reactivity_data['Drug1'].unique()
 )
 
 # Select Drug 2
 drug2 = st.selectbox(
-    'Select Drug 2:',
+    'Antimicrobial you want to use:',
     options=cross_reactivity_data['Drug2'].unique()
 )
 
