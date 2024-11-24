@@ -52,22 +52,27 @@ if drug1 and drug2:
         if pd.notna(drug1_smiles) and pd.notna(drug2_smiles):
             drug1_mol = Chem.MolFromSmiles(drug1_smiles)
             drug2_mol = Chem.MolFromSmiles(drug2_smiles)
-            fp_gen = rdFingerprintGenerator.GetMorganGenerator(fpSize=2048, radius=2)
-            drug1_fp = fp_gen.GetFingerprint(drug1_mol)
-            drug2_fp = fp_gen.GetFingerprint(drug2_mol)
-            tanimoto_similarity = DataStructs.TanimotoSimilarity(drug1_fp, drug2_fp)
 
-            # Display Tanimoto Similarity
-            st.write('---')
-            st.subheader('Tanimoto Similarity Coefficient')
-            st.write(f'Tanimoto Similarity between **{drug1}** and **{drug2}**: {tanimoto_similarity:.2f}')
-            st.markdown(
-                """
-                **What does this mean?**
-                - A Tanimoto Similarity score close to **1** indicates that the two molecules are very similar in structure.
-                - A score close to **0** indicates that the molecules are structurally very different.
-                """
-            )
+            if drug1_mol is None or drug2_mol is None:
+                st.warning("Unable to generate molecule from SMILES for one or both drugs. Please verify the SMILES strings.")
+            else:
+                # Proceed with fingerprint generation and similarity calculation
+                fp_gen = rdFingerprintGenerator.GetMorganGenerator(fpSize=2048, radius=2)
+                drug1_fp = fp_gen.GetFingerprint(drug1_mol)
+                drug2_fp = fp_gen.GetFingerprint(drug2_mol)
+                tanimoto_similarity = DataStructs.TanimotoSimilarity(drug1_fp, drug2_fp)
+
+                # Display Tanimoto Similarity
+                st.write('---')
+                st.subheader('Tanimoto Similarity Coefficient')
+                st.write(f'Tanimoto Similarity between **{drug1}** and **{drug2}**: {tanimoto_similarity:.2f}')
+                st.markdown(
+                    """
+                    **What does this mean?**
+                    - A Tanimoto Similarity score close to **1** indicates that the two molecules are very similar in structure.
+                    - A score close to **0** indicates that the molecules are structurally very different.
+                    """
+                )
         else:
             st.warning('SMILES data is not available for one or both selected drugs, so Tanimoto similarity cannot be calculated.')
 
