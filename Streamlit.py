@@ -10,11 +10,13 @@ except ImportError:
 
 import streamlit as st
 import pandas as pd
+from rdkit import Chem
+from rdkit.Chem import rdFingerprintGenerator, DataStructs
 
 # Load and prepare the dataset
 file_path = 'cross_reactivity_analysis.xlsx'
 data = pd.read_excel(file_path, 'Sheet1')
-cross_reactivity_data = data[['Drug1', 'Drug2', 'Cross_Reactivity_Label']]
+cross_reactivity_data = data[['Drug1', 'Drug2', 'Cross_Reactivity_Label', 'SMILES_Drug1_x', 'SMILES_Drug2_x']]
 
 # Streamlit app layout
 st.title('Antibiotic Cross-Reactivity Checker')
@@ -43,6 +45,33 @@ if drug1 and drug2:
         st.write('No data available for the selected drugs.')
     else:
         label = filtered_data['Cross_Reactivity_Label'].values[0]
+        drug1_smiles = filtered_data['SMILES_Drug1_x'].values[0]
+        drug2_smiles = filtered_data['SMILES_Drug2_x'].values[0]
+
+        # Tanimoto Similarity Calculation
+        if pd.notna(drug1_smiles) and pd.notna(drug2_smiles):
+            drug1_mol = Chem.MolFromSmiles(drug1_smiles)
+            drug2_mol = Chem.MolFromSmiles(drug2_smiles)
+            fp_gen = rdFingerprintGenerator.GetMorganGenerator(fpSize=2048, radius=2)
+            drug1_fp = fp_gen.GetFingerprint(drug1_mol)
+            drug2_fp = fp_gen.GetFingerprint(drug2_mol)
+            tanimoto_similarity = DataStructs.TanimotoSimilarity(drug1_fp, drug2_fp)
+
+            # Display Tanimoto Similarity
+            st.write('---')
+            st.subheader('Tanimoto Similarity Coefficient')
+            st.write(f'Tanimoto Similarity between **{drug1}** and **{drug2}**: {tanimoto_similarity:.2f}')
+            st.markdown(
+                """
+                **What does this mean?**
+                - A Tanimoto Similarity score close to **1** indicates that the two molecules are very similar in structure.
+                - A score close to **0** indicates that the molecules are structurally very different.
+                """
+            )
+        else:
+            st.warning('SMILES data is not available for one or both selected drugs, so Tanimoto similarity cannot be calculated.')
+
+        # Display Cross-Reactivity Information
         if label == 0:
             st.success('<2% chance of cross-reactivity expected')
         elif label == 1:
