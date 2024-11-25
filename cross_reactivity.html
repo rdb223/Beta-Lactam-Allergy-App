@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Antibiotic Cross-Reactivity Checker</title>
+</head>
+<body>
+    <h1>Antibiotic Cross-Reactivity Checker</h1>
+    
+    <div>
+        <label for="drug1">Antimicrobial patient reports allergy to:</label>
+        <select id="drug1"></select>
+    </div>
+    
+    <div>
+        <label for="drug2">Antimicrobial you want to use:</label>
+        <select id="drug2"></select>
+    </div>
+
+    <button onclick="checkCrossReactivity()">Check Cross-Reactivity</button>
+    
+    <div id="result"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/rdkit/2021.09.5/rdkit.min.js"></script>
+    <script>
+        let crossReactivityData;
+
+        // Load data from a local JSON file
+        fetch('cross_reactivity_data.json')
+            .then(response => response.json())
+            .then(data => {
+                crossReactivityData = data;
+                populateSelectBoxes(data);
+            });
+
+        function populateSelectBoxes(data) {
+            const drug1Select = document.getElementById('drug1');
+            const drug2Select = document.getElementById('drug2');
+
+            const uniqueDrug1 = [...new Set(data.map(item => item.Drug1))];
+            const uniqueDrug2 = [...new Set(data.map(item => item.Drug2))];
+
+            uniqueDrug1.forEach(drug => {
+                const option = document.createElement('option');
+                option.value = drug;
+                option.textContent = drug;
+                drug1Select.appendChild(option);
+            });
+
+            uniqueDrug2.forEach(drug => {
+                const option = document.createElement('option');
+                option.value = drug;
+                option.textContent = drug;
+                drug2Select.appendChild(option);
+            });
+        }
+
+        function checkCrossReactivity() {
+            const drug1 = document.getElementById('drug1').value;
+            const drug2 = document.getElementById('drug2').value;
+            const resultDiv = document.getElementById('result');
+
+            const filteredData = crossReactivityData.find(item => item.Drug1 === drug1 && item.Drug2 === drug2);
+
+            if (!filteredData) {
+                resultDiv.innerHTML = 'No data available for the selected drugs.';
+                return;
+            }
+
+            let resultText = '';
+            switch (filteredData.Cross_Reactivity_Label) {
+                case 0:
+                    resultText = '<p style="color:green;"><2% chance of cross-reactivity expected.</p>';
+                    break;
+                case 1:
+                    resultText = '<p style="color:red;">⚠️ 20-40% chance of cross-reactivity. Consider another agent or utilizing a test dose.</p>';
+                    break;
+                case 2:
+                    resultText = '<p style="color:orange;">Possible cross-reactivity.</p>';
+                    break;
+                default:
+                    resultText = '<p style="color:gray;">Unknown cross-reactivity label.</p>';
+            }
+
+            // Display Tanimoto Similarity (basic example)
+            if (filteredData.SMILES_Drug1_x && filteredData.SMILES_Drug2_x) {
+                const drug1Mol = RDKit.get_mol(filteredData.SMILES_Drug1_x);
+                const drug2Mol = RDKit.get_mol(filteredData.SMILES_Drug2_x);
+                const tanimotoSimilarity = drug1Mol.get_similarity(drug2Mol);
+                
+                resultText += `<p>Tanimoto Similarity between <strong>${drug1}</strong> and <strong>${drug2}</strong>: ${tanimotoSimilarity.toFixed(2)}</p>`;
+            }
+
+            resultDiv.innerHTML = resultText;
+        }
+    </script>
+</body>
+</html>
